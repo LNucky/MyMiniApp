@@ -28,12 +28,31 @@
     <button id="test-button">Тестовая кнопка</button>
     
     <script>
-        // Минимальный JavaScript для инициализации Telegram Web App
         Telegram.WebApp.ready();
         
-        // Обработчик кнопки (пока просто alert)
-        document.getElementById('test-button').addEventListener('click', function() {
-            alert('Кнопка работает!');
+        document.getElementById('test-button').addEventListener('click', async function() {
+            try {
+                const backendUrl = 'backendformma-production.up.railway.app';
+                
+                const response = await fetch(backendUrl + '/api/button-click', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        button_id: 'test-button',
+                        user_action: 'click',
+                        timestamp: new Date().toISOString(),
+                        // Данные из Telegram (если есть)
+                        telegram_data: Telegram.WebApp.initDataUnsafe || {}
+                    })
+                });
+                
+                const result = await response.json();
+                alert(`Сервер: ${result.message}\nДанные: ${JSON.stringify(result.received_data)}`);
+            } catch (error) {
+                alert('Ошибка соединения с сервером');
+            }
         });
     </script>
 </body>
